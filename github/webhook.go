@@ -71,8 +71,8 @@ func (WebHookHandler) ServeHTTP(w http.ResponseWriter, req *http.Request) {
 
 	log.Printf("push from %s", p.Sender.Login)
 
-	servicesToLaunch := map[string]string{}
-	servicesToShutdown := map[string]string{}
+	servicesToLaunch := map[string]bool{}
+	servicesToShutdown := map[string]bool{}
 	l := 0
 
 	for _, commitInstance := range p.Commits {
@@ -80,18 +80,19 @@ func (WebHookHandler) ServeHTTP(w http.ResponseWriter, req *http.Request) {
 		log.Print("Added:")
 		for _, item := range commitInstance.Added {
 			log.Printf("\t%s", item)
-			servicesToLaunch[l] = item
+			servicesToLaunch[item] = true
 			l++
 		}
 		log.Print("Removed:")
-		for i, item := range commitInstance.Removed {
+		for _, item := range commitInstance.Removed {
 			log.Printf("\t%s", item)
-			servicesToShutdown[i] = item
+			servicesToShutdown[item] = true
+
 		}
 		log.Print("Modified:")
 		for _, item := range commitInstance.Modified {
 			log.Printf("\t%s", item)
-			servicesToLaunch[l] = item
+			servicesToLaunch[item] = true
 			l++
 		}
 	}
